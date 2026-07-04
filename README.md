@@ -1,0 +1,349 @@
+# FlamApp AI – Research & Development Assignment
+
+## Candidate Information
+
+| Field | Details |
+|------|---------|
+| **Name** | Nallapaneni Vaibhav |
+| **Course** | B.Tech Computer Science and Engineering (Artificial Intelligence) |
+| **College** | Amrita Vishwa Vidyapeetham |
+| **Assignment** | Research & Development |
+
+---
+
+# Problem Statement
+
+The objective of this assignment is to estimate the unknown parameters of the following parametric curve using the given dataset (`xy_data.csv`).
+
+\[
+x=t\cos(\theta)-e^{M|t|}\sin(0.3t)\sin(\theta)+X
+\]
+
+\[
+y=42+t\sin(\theta)+e^{M|t|}\sin(0.3t)\cos(\theta)
+\]
+
+The unknown parameters to be estimated are
+
+- **θ (Theta)**
+- **M**
+- **X**
+
+subject to the constraints
+
+| Parameter | Range |
+|-----------|---------|
+| θ | \(0^\circ<\theta<50^\circ\) |
+| M | \(-0.05<M<0.05\) |
+| X | \(0<X<100\) |
+| t | \(6<t<60\) |
+
+The objective is to recover the values of these unknown parameters such that the generated curve best matches the supplied sample points while minimizing the **L1 Distance** between the predicted and observed coordinates.
+
+---
+
+# Mathematical Formulation
+
+The given parametric equations are
+
+\[
+x=t\cos(\theta)-e^{M|t|}\sin(0.3t)\sin(\theta)+X
+\]
+
+\[
+y=42+t\sin(\theta)+e^{M|t|}\sin(0.3t)\cos(\theta)
+\]
+
+For every candidate parameter combination, the corresponding parameter \(t\) must first be computed before reconstructing the curve.
+
+---
+
+# Derivation of \(t\)
+
+Since the dataset only contains the coordinates \((x,y)\), the parameter \(t\) is unknown.
+
+To estimate it, the exponential perturbation term is eliminated by projecting every point onto the rotated coordinate axis.
+
+Starting from
+
+\[
+x=X+t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta
+\]
+
+\[
+y=42+t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
+\]
+
+Subtract the constant offsets
+
+\[
+x-X=t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta
+\]
+
+\[
+y-42=t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
+\]
+
+Multiply the first equation by
+
+\[
+\cos\theta
+\]
+
+Multiply the second equation by
+
+\[
+\sin\theta
+\]
+
+Adding the two equations gives
+
+\[
+(x-X)\cos\theta+(y-42)\sin\theta
+\]
+
+\[
+=t\cos^2\theta
+-e^{M|t|}\sin(0.3t)\sin\theta\cos\theta
++t\sin^2\theta
++e^{M|t|}\sin(0.3t)\cos\theta\sin\theta
+\]
+
+The exponential terms cancel each other
+
+\[
+=t(\cos^2\theta+\sin^2\theta)
+\]
+
+Using the trigonometric identity
+
+\[
+\cos^2\theta+\sin^2\theta=1
+\]
+
+we finally obtain
+
+\[
+\boxed{
+t=(x-X)\cos\theta+(y-42)\sin\theta
+}
+\]
+
+This equation allows direct computation of \(t\) for every candidate pair \((\theta,X)\), eliminating the need for iterative estimation of \(t\).
+
+---
+
+# Approach
+
+The overall solution follows an exhaustive search strategy over the unknown parameters.
+
+### Step 1
+
+Load the provided dataset.
+
+```python
+df = pd.read_csv("xy_data.csv")
+```
+
+---
+
+### Step 2
+
+Generate candidate values for each unknown parameter.
+
+| Parameter | Search Space |
+|-----------|-------------|
+| θ | 0° – 50° |
+| M | -0.05 – 0.05 |
+| X | 0 – 100 |
+
+---
+
+### Step 3
+
+For every candidate pair \((\theta,X)\),
+
+compute
+
+\[
+t=(x-X)\cos\theta+(y-42)\sin\theta
+\]
+
+Only solutions satisfying
+
+\[
+6<t<60
+\]
+
+are retained.
+
+---
+
+### Step 4
+
+For every candidate value of **M**, reconstruct the curve using
+
+\[
+x=t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta+X
+\]
+
+\[
+y=42+t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
+\]
+
+---
+
+### Step 5
+
+Compute the total L1 distance
+
+\[
+\text{Error}
+=
+\sum |x_{pred}-x|
++
+\sum |y_{pred}-y|
+\]
+
+The parameter combination producing the minimum L1 distance is selected as the optimal solution.
+
+To improve computational efficiency, NumPy vectorization was used to evaluate all candidate values of **M** simultaneously instead of iterating through them individually.
+
+---
+
+# Experimental Results
+
+To further validate the robustness of the proposed solution, two independent experiments were performed.
+
+---
+
+## Experiment 1 — Complete Dataset Optimization
+
+In the first experiment, all **1500 samples** provided in `xy_data.csv` were used to estimate the unknown parameters.
+
+**Notebook**
+
+```
+solution_without_generalization.ipynb
+```
+
+### Estimated Parameters
+
+| Parameter | Value |
+|-----------|------:|
+| θ | **30°** |
+| θ (radians) | **0.523599** |
+| M | **0.030** |
+| X | **55** |
+
+### Optimization Result
+
+```text
+====================================
+FINAL BEST PARAMETERS
+====================================
+
+Theta (deg) : 30
+Theta (rad) : 0.523599
+M           : 0.030
+X           : 55
+Error        : 0.030834
+```
+
+Using all available samples provides the optimal parameter values over the complete dataset.
+
+---
+
+# Experiment 2 — Parameter Estimation with Generalization
+
+Although not required in the assignment, an additional validation experiment was performed to evaluate how well the estimated parameters generalize to unseen data.
+
+The dataset was divided into two subsets.
+
+- **Training Samples : 1200**
+- **Testing Samples : 300**
+
+The unknown parameters were estimated **only using the first 1200 samples**.
+
+The obtained parameters were then directly applied to reconstruct the remaining **300 unseen samples** without any additional optimization.
+
+**Notebook**
+
+```
+solution_with_generalization.ipynb
+```
+
+### Estimated Parameters (Training)
+
+| Parameter | Value |
+|-----------|------:|
+| θ | **30°** |
+| θ (radians) | **0.523599** |
+| M | **0.030** |
+| X | **55** |
+
+### Training Result
+
+```text
+====================================
+FINAL BEST PARAMETERS
+====================================
+
+Theta (deg) : 30
+Theta (rad) : 0.523599
+M           : 0.030
+X           : 55
+Error        : 0.025024
+```
+
+---
+
+## Generalization Test
+
+The learned parameters were evaluated on the remaining **300 unseen samples**.
+
+```text
+====================================
+TEST RESULTS (300 Random Samples)
+====================================
+
+Samples Used      : 300
+Total L1 Error    : 0.005810
+Average L1 Error  : 0.000019
+```
+
+The extremely small average L1 error indicates that the estimated parameters successfully generalize to unseen data instead of merely fitting the training samples.
+
+---
+
+# Experimental Summary
+
+| Experiment | Training Samples | Test Samples | θ | M | X | Training Error | Test Error |
+|------------|----------------:|-------------:|---:|---:|---:|--------------:|-----------:|
+| Complete Dataset | 1500 | — | 30° | 0.030 | 55 | 0.030834 | — |
+| Generalization | 1200 | 300 | 30° | 0.030 | 55 | 0.025024 | 0.005810 |
+
+The consistency of the estimated parameters across both experiments demonstrates the robustness of the proposed optimization approach.
+
+---
+
+# Final Estimated Parameters
+
+The optimization consistently converged to the following parameter values.
+
+| Parameter | Estimated Value |
+|-----------|----------------:|
+| **θ** | **30°** |
+| **θ (radians)** | **0.523599** |
+| **M** | **0.030** |
+| **X** | **55** |
+
+These parameters produced the minimum L1 error while satisfying all constraints specified in the assignment.
+
+---
+
+## References
+
+- Assignment Description: **AI_R&D Assignment.pdf**
+- Dataset: **xy_data.csv**
+- Interactive Curve Visualization: https://www.desmos.com/calculator/rfj91yrxob

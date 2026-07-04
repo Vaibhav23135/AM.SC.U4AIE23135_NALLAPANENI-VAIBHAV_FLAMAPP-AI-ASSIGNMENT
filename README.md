@@ -6,6 +6,7 @@
 |------|---------|
 | **Name** | Nallapaneni Vaibhav |
 | **Course** | B.Tech Computer Science and Engineering (Artificial Intelligence) |
+| **ROLL No** | AM.SC.U4AIE23135 |
 | **College** | Amrita Vishwa Vidyapeetham |
 | **Assignment** | Research & Development |
 
@@ -13,123 +14,68 @@
 
 # Problem Statement
 
-The objective of this assignment is to estimate the unknown parameters of the following parametric curve using the given dataset (`xy_data.csv`).
+The objective of this assignment is to estimate the unknown parameters of the following parametric curve using the dataset in `xy_data.csv`.
 
-\[
-x=t\cos(\theta)-e^{M|t|}\sin(0.3t)\sin(\theta)+X
-\]
+The curve is defined by:
 
-\[
-y=42+t\sin(\theta)+e^{M|t|}\sin(0.3t)\cos(\theta)
-\]
+- $x = t\cos(\theta) - e^{M|t|}\sin(0.3t)\sin(\theta) + X$
+- $y = 42 + t\sin(\theta) + e^{M|t|}\sin(0.3t)\cos(\theta)$
 
-The unknown parameters to be estimated are
+The unknown parameters to be estimated are:
 
 - **θ (Theta)**
 - **M**
 - **X**
 
-subject to the constraints
+Subject to the following constraints:
 
 | Parameter | Range |
 |-----------|---------|
-| θ | \(0^\circ<\theta<50^\circ\) |
-| M | \(-0.05<M<0.05\) |
-| X | \(0<X<100\) |
-| t | \(6<t<60\) |
+| θ | $0^\circ < \theta < 50^\circ$ |
+| M | $-0.05 < M < 0.05$ |
+| X | $0 < X < 100$ |
+| t | $6 < t < 60$ |
 
-The objective is to recover the values of these unknown parameters such that the generated curve best matches the supplied sample points while minimizing the **L1 Distance** between the predicted and observed coordinates.
+The goal is to recover parameter values that best match the supplied sample points while minimizing the L1 distance between the predicted and observed coordinates.
 
 ---
 
 # Mathematical Formulation
 
-The given parametric equations are
+The model is expressed as:
 
-\[
-x=t\cos(\theta)-e^{M|t|}\sin(0.3t)\sin(\theta)+X
-\]
+- $x = t\cos(\theta) - e^{M|t|}\sin(0.3t)\sin(\theta) + X$
+- $y = 42 + t\sin(\theta) + e^{M|t|}\sin(0.3t)\cos(\theta)$
 
-\[
-y=42+t\sin(\theta)+e^{M|t|}\sin(0.3t)\cos(\theta)
-\]
-
-For every candidate parameter combination, the corresponding parameter \(t\) must first be computed before reconstructing the curve.
+For each candidate parameter combination, the value of $t$ must first be computed before reconstructing the curve.
 
 ---
 
-# Derivation of \(t\)
+# Derivation of $t$
 
-Since the dataset only contains the coordinates \((x,y)\), the parameter \(t\) is unknown.
+Since the dataset contains only the coordinates $(x, y)$, the parameter $t$ is unknown.
 
-To estimate it, the exponential perturbation term is eliminated by projecting every point onto the rotated coordinate axis.
+To estimate it, the exponential perturbation term is eliminated by projecting each point onto the rotated coordinate axis.
 
-Starting from
+Starting from:
 
-\[
-x=X+t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta
-\]
+- $x = X + t\cos\theta - e^{M|t|}\sin(0.3t)\sin\theta$
+- $y = 42 + t\sin\theta + e^{M|t|}\sin(0.3t)\cos\theta$
 
-\[
-y=42+t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
-\]
+Subtracting the constant offsets gives:
 
-Subtract the constant offsets
+- $x - X = t\cos\theta - e^{M|t|}\sin(0.3t)\sin\theta$
+- $y - 42 = t\sin\theta + e^{M|t|}\sin(0.3t)\cos\theta$
 
-\[
-x-X=t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta
-\]
+Multiplying the first equation by $\cos\theta$ and the second by $\sin\theta$, then adding them, yields:
 
-\[
-y-42=t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
-\]
+- $(x - X)\cos\theta + (y - 42)\sin\theta = t(\cos^2\theta + \sin^2\theta)$
 
-Multiply the first equation by
+Using the identity $\cos^2\theta + \sin^2\theta = 1$, we obtain:
 
-\[
-\cos\theta
-\]
+- $t = (x - X)\cos\theta + (y - 42)\sin\theta$
 
-Multiply the second equation by
-
-\[
-\sin\theta
-\]
-
-Adding the two equations gives
-
-\[
-(x-X)\cos\theta+(y-42)\sin\theta
-\]
-
-\[
-=t\cos^2\theta
--e^{M|t|}\sin(0.3t)\sin\theta\cos\theta
-+t\sin^2\theta
-+e^{M|t|}\sin(0.3t)\cos\theta\sin\theta
-\]
-
-The exponential terms cancel each other
-
-\[
-=t(\cos^2\theta+\sin^2\theta)
-\]
-
-Using the trigonometric identity
-
-\[
-\cos^2\theta+\sin^2\theta=1
-\]
-
-we finally obtain
-
-\[
-\boxed{
-t=(x-X)\cos\theta+(y-42)\sin\theta
-}
-\]
-
-This equation allows direct computation of \(t\) for every candidate pair \((\theta,X)\), eliminating the need for iterative estimation of \(t\).
+This expression allows direct computation of $t$ for each candidate pair $(\theta, X)$, avoiding iterative estimation.
 
 ---
 
@@ -161,35 +107,20 @@ Generate candidate values for each unknown parameter.
 
 ### Step 3
 
-For every candidate pair \((\theta,X)\),
+For each candidate pair $(\theta, X)$, compute:
 
-compute
+- $t = (x - X)\cos\theta + (y - 42)\sin\theta$
 
-\[
-t=(x-X)\cos\theta+(y-42)\sin\theta
-\]
-
-Only solutions satisfying
-
-\[
-6<t<60
-\]
-
-are retained.
+Only values satisfying $6 < t < 60$ are retained.
 
 ---
 
 ### Step 4
 
-For every candidate value of **M**, reconstruct the curve using
+For each candidate value of **M**, reconstruct the curve using:
 
-\[
-x=t\cos\theta-e^{M|t|}\sin(0.3t)\sin\theta+X
-\]
-
-\[
-y=42+t\sin\theta+e^{M|t|}\sin(0.3t)\cos\theta
-\]
+- $x = t\cos\theta - e^{M|t|}\sin(0.3t)\sin\theta + X$
+- $y = 42 + t\sin\theta + e^{M|t|}\sin(0.3t)\cos\theta$
 
 ---
 
@@ -227,14 +158,7 @@ In the first experiment, all **1500 samples** provided in `xy_data.csv` were use
 solution_without_generalization.ipynb
 ```
 
-### Estimated Parameters
 
-| Parameter | Value |
-|-----------|------:|
-| θ | **30°** |
-| θ (radians) | **0.523599** |
-| M | **0.030** |
-| X | **55** |
 
 ### Optimization Result
 
@@ -273,14 +197,7 @@ The obtained parameters were then directly applied to reconstruct the remaining 
 solution_with_generalization.ipynb
 ```
 
-### Estimated Parameters (Training)
 
-| Parameter | Value |
-|-----------|------:|
-| θ | **30°** |
-| θ (radians) | **0.523599** |
-| M | **0.030** |
-| X | **55** |
 
 ### Training Result
 

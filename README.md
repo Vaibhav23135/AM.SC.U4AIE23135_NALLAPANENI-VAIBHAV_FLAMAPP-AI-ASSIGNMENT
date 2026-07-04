@@ -217,4 +217,4 @@ These parameters produced the minimum L1 error while satisfying all constraints 
 
 - Assignment Description: **AI_R&D Assignment.pdf**
 - Dataset: **xy_data.csv**
-- Interactive Curve Visualization: https://www.desmos.com/calculator/rfj91yrxob
+- Interactive Curve Visualization: https://www.desmos.com/calculator/u6prf3mvlg (My desmos simulation link)

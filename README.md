@@ -126,15 +126,9 @@ For each candidate value of **M**, reconstruct the curve using:
 
 ### Step 5
 
-Compute the total L1 distance
+Compute the total L1 distance:
 
-\[
-\text{Error}
-=
-\sum |x_{pred}-x|
-+
-\sum |y_{pred}-y|
-\]
+Error = Σ|x_pred - x| + Σ|y_pred - y|
 
 The parameter combination producing the minimum L1 distance is selected as the optimal solution.
 

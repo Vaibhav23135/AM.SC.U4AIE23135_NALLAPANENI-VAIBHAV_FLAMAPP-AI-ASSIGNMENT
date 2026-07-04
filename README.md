@@ -138,41 +138,7 @@ To improve computational efficiency, NumPy vectorization was used to evaluate al
 
 # Experimental Results
 
-To further validate the robustness of the proposed solution, two independent experiments were performed.
-
----
-
-## Experiment 1 — Complete Dataset Optimization
-
-In the first experiment, all **1500 samples** provided in `xy_data.csv` were used to estimate the unknown parameters.
-
-**Notebook**
-
-```
-solution_without_generalization.ipynb
-```
-
-
-
-### Optimization Result
-
-```text
-====================================
-FINAL BEST PARAMETERS
-====================================
-
-Theta (deg) : 30
-Theta (rad) : 0.523599
-M           : 0.030
-X           : 55
-Error        : 0.030834
-```
-
-Using all available samples provides the optimal parameter values over the complete dataset.
-
----
-
-# Experiment 2 — Parameter Estimation with Generalization
+# Parameter Estimation with Generalization
 
 Although not required in the assignment, an additional validation experiment was performed to evaluate how well the estimated parameters generalize to unseen data.
 
@@ -196,9 +162,7 @@ solution_with_generalization.ipynb
 ### Training Result
 
 ```text
-====================================
-FINAL BEST PARAMETERS
-====================================
+
 
 Theta (deg) : 30
 Theta (rad) : 0.523599
@@ -214,9 +178,7 @@ Error        : 0.025024
 The learned parameters were evaluated on the remaining **300 unseen samples**.
 
 ```text
-====================================
-TEST RESULTS (300 Random Samples)
-====================================
+
 
 Samples Used      : 300
 Total L1 Error    : 0.005810
@@ -231,10 +193,8 @@ The extremely small average L1 error indicates that the estimated parameters suc
 
 | Experiment | Training Samples | Test Samples | θ | M | X | Training Error | Test Error |
 |------------|----------------:|-------------:|---:|---:|---:|--------------:|-----------:|
-| Complete Dataset | 1500 | — | 30° | 0.030 | 55 | 0.030834 | — |
 | Generalization | 1200 | 300 | 30° | 0.030 | 55 | 0.025024 | 0.005810 |
 
-The consistency of the estimated parameters across both experiments demonstrates the robustness of the proposed optimization approach.
 
 ---
 
